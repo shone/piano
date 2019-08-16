@@ -8,9 +8,9 @@
     <div id="current-song">
       <input id="current-song-title" value="untitled">
       <span id="current-song-time">00:00</span>
-      <button id="record-button">⏺ Record</button>
-      <button id="play-button" disabled>▶ Play</button>
-      <button id="save-button" disabled>Save ⮥</button>
+      <button id="record-button" onclick="toggleRecording()">⏺ Record</button>
+      <button id="play-button" onclick="togglePlayback()" disabled>▶ Play</button>
+      <button id="save-button" onclick="save()" disabled>Save ⮥</button>
     </div>
     <div id="piano">
       <button data-freq="261.626" data-key="a">A</button>
@@ -167,7 +167,6 @@
       align-items: center;
       padding: 5px;
     }
-    #piano button:active,
     #piano button.active {
       background: #3ac8da;
       border-top: 1px solid #3ac8da;
@@ -214,14 +213,65 @@
     let timestampOnLastRecordingEvent = null;
     let playbackTimer = null;
 
-    document.getElementById('piano').addEventListener('pointerdown', event => {
-      if (event.target.tagName === 'BUTTON') {
-        event.preventDefault();
-        notifyNote(event.target.dataset.freq);
-      }
-    });
+    const piano = document.getElementById('piano');
 
-    window.addEventListener('keydown', event => {
+    const touchMap = new Map();
+    for (const button of piano.getElementsByTagName('button')) button.touches = 0;
+
+    piano.ontouchstart = piano.ontouchmove = event => {
+      event.preventDefault();
+      for (const touch of event.changedTouches) {
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (element && element.tagName === 'BUTTON' && element.closest('#piano')) {
+          const previousElement = touchMap.get(touch.identifier);
+          if (previousElement !== element) {
+            if (previousElement) {
+              previousElement.touches--;
+              previousElement.classList.toggle('active', previousElement.touches > 0);
+            }
+            touchMap.set(touch.identifier, element);
+            element.touches++;
+            if (element.touches === 1) {
+              notifyNote(element.dataset.freq);
+              element.classList.add('active');
+            }
+          }
+        }
+      }
+    }
+    piano.ontouchend = piano.ontouchcancel = event => {
+      for (const touch of event.changedTouches) {
+        const element = touchMap.get(touch.identifier);
+        if (element) {
+          element.touches--;
+          element.classList.toggle('active', element.touches > 0);
+        }
+        touchMap.delete(touch.identifier);
+      }
+    }
+
+    piano.onmousedown = piano.onmouseover = event => {
+      if (event.buttons == 1 && event.target.tagName === 'BUTTON') {
+        event.target.touches++;
+        if (event.target.touches === 1) {
+          notifyNote(event.target.dataset.freq);
+          event.target.classList.add('active');
+        }
+        event.target.onmouseup = () => {
+          event.target.touches--;
+          event.target.classList.toggle('active', event.target.touches > 0);
+          event.target.onmouseup = null;
+        }
+      }
+    }
+    piano.onmouseup = piano.onmouseout = event => {
+      if (event.buttons == 1 && event.target.tagName === 'BUTTON') {
+        event.target.touches--;
+        event.target.classList.toggle('active', event.target.touches > 0);
+      }
+    }
+
+    window.onkeydown = event => {
       if (document.activeElement === document.getElementById('current-song-title')) {
         return;
       }
@@ -231,19 +281,26 @@
         event.preventDefault();
         togglePlayback();
       } else {
-        const button = document.getElementById('piano').querySelector(`[data-key="${event.key}"]`);
-        if (button) {
-          notifyNote(button.dataset.freq);
-          button.classList.add('active');
+        const button = piano.querySelector(`[data-key="${event.key}"]`);
+        if (button && !button.isKeyDown) {
+          event.preventDefault();
+          button.isKeyDown = true;
+          button.touches++;
+          if (button.touches === 1) {
+            notifyNote(button.dataset.freq);
+            button.classList.add('active');
+          }
         }
       }
-    });
-    window.addEventListener('keyup', event => {
-      const button = document.getElementById('piano').querySelector(`[data-key="${event.key}"]`);
+    }
+    window.onkeyup = event => {
+      const button = piano.querySelector(`[data-key="${event.key}"]`);
       if (button) {
-        button.classList.remove('active');
+        button.isKeyDown = false;
+        button.touches--;
+        button.classList.toggle('active', button.touches > 0);
       }
-    });
+    }
 
     function notifyNote(freq) {
       playTone(freq);
@@ -339,7 +396,7 @@
       `);
       const li = document.getElementById('saved-song-list').lastElementChild;
       li.querySelector('.title').textContent = song.title;
-      li.querySelector('.play-button').addEventListener('click', () => play(song.notes));
+      li.querySelector('.play-button').onclick = () => play(song.notes);
     }
 
     const savedSongs = JSON.parse(localStorage.getItem('songs') || '[]');
@@ -347,12 +404,8 @@
       addSavedSong(song);
     }
 
-    document.getElementById('record-button').addEventListener('click', toggleRecording);
-    document.getElementById('play-button').addEventListener('click', togglePlayback);
-    document.getElementById('save-button').addEventListener('click', save);
-    
     function secondsToDisplayString(seconds) {
-        return String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+      return String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
     }
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext);
