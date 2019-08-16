@@ -8,9 +8,9 @@
     <div id="current-song">
       <input id="current-song-title" value="untitled">
       <span id="current-song-time">00:00</span>
-      <button id="record-button" onclick="toggleRecording()">⏺ Record</button>
-      <button id="play-button" onclick="togglePlayback()" disabled>▶ Play</button>
-      <button id="save-button" onclick="save()" disabled>Save ⮥</button>
+      <button id="record-button" onclick="toggleRecording()"        > ⏺ Record </button>
+      <button id="play-button"   onclick="togglePlayback()" disabled> ▶ Play     </button>
+      <button id="save-button"   onclick="save()"           disabled> Save ⮥    </button>
     </div>
     <div id="piano">
       <button data-freq="261.626" data-key="a">A</button>
@@ -206,45 +206,74 @@
   <script>
     "use-strict";
 
+    const audioContext = new (window.AudioContext || window.webkitAudioContext);
     let mode = 'idle';
     let currentSongTimeSeconds = 0;
     let recordingTickTimer = null;
     let currentNotes = [];
     let timestampOnLastRecordingEvent = null;
     let playbackTimer = null;
+    let isAudioStarted = false;
 
     const piano = document.getElementById('piano');
 
-    const touchMap = new Map();
-    for (const button of piano.getElementsByTagName('button')) button.touches = 0;
+    for (const button of piano.getElementsByTagName('button')) {
+      button.touches = 0;
 
+      button.envelope = audioContext.createGain();
+      button.envelope.gain.setValueAtTime(0, audioContext.currentTime);
+      button.envelope.connect(audioContext.destination);
+
+      button.osc = audioContext.createOscillator();
+      button.osc.frequency.setValueAtTime(parseFloat(button.dataset.freq), audioContext.currentTime);
+      button.osc.type = 'square';
+      button.osc.connect(button.envelope);
+    }
+
+    function startAudio() {
+      for (const button of piano.getElementsByTagName('button')) {
+        button.osc.start();
+      }
+      isAudioStarted = true;
+    }
+
+    function addTouchToPianoButton(button) {
+      button.touches++;
+      if (button.touches === 1) {
+        onPianoButton(button.dataset.freq, true);
+        button.classList.add('active');
+      }
+    }
+    function removeTouchFromPianoButton(button) {
+      button.touches--;
+      if (button.touches === 0) {
+        onPianoButton(button.dataset.freq, false);
+        button.classList.remove('active');
+      }
+    }
+
+    const touchMap = new Map();
     piano.ontouchstart = piano.ontouchmove = event => {
       event.preventDefault();
       for (const touch of event.changedTouches) {
         const element = document.elementFromPoint(touch.clientX, touch.clientY);
         if (element && element.tagName === 'BUTTON' && element.closest('#piano')) {
-          const previousElement = touchMap.get(touch.identifier);
-          if (previousElement !== element) {
-            if (previousElement) {
-              previousElement.touches--;
-              previousElement.classList.toggle('active', previousElement.touches > 0);
+          const previousButton = touchMap.get(touch.identifier);
+          if (previousButton !== element) {
+            if (previousButton) {
+              removeTouchFromPianoButton(previousButton);
             }
             touchMap.set(touch.identifier, element);
-            element.touches++;
-            if (element.touches === 1) {
-              notifyNote(element.dataset.freq);
-              element.classList.add('active');
-            }
+            addTouchToPianoButton(element);
           }
         }
       }
     }
     piano.ontouchend = piano.ontouchcancel = event => {
       for (const touch of event.changedTouches) {
-        const element = touchMap.get(touch.identifier);
-        if (element) {
-          element.touches--;
-          element.classList.toggle('active', element.touches > 0);
+        const button = touchMap.get(touch.identifier);
+        if (button) {
+          removeTouchFromPianoButton(button);
         }
         touchMap.delete(touch.identifier);
       }
@@ -252,27 +281,24 @@
 
     piano.onmousedown = piano.onmouseover = event => {
       if (event.buttons == 1 && event.target.tagName === 'BUTTON') {
-        event.target.touches++;
-        if (event.target.touches === 1) {
-          notifyNote(event.target.dataset.freq);
-          event.target.classList.add('active');
-        }
+        addTouchToPianoButton(event.target);
         event.target.onmouseup = () => {
-          event.target.touches--;
-          event.target.classList.toggle('active', event.target.touches > 0);
+          removeTouchFromPianoButton(event.target);
           event.target.onmouseup = null;
         }
       }
     }
     piano.onmouseup = piano.onmouseout = event => {
       if (event.buttons == 1 && event.target.tagName === 'BUTTON') {
-        event.target.touches--;
-        event.target.classList.toggle('active', event.target.touches > 0);
+        removeTouchFromPianoButton(event.target);
       }
     }
 
     window.onkeydown = event => {
       if (document.activeElement === document.getElementById('current-song-title')) {
+        return;
+      }
+      if (event.ctrlKey || event.shiftKey || event.altKey) {
         return;
       }
       if (event.key === 'r') {
@@ -285,11 +311,7 @@
         if (button && !button.isKeyDown) {
           event.preventDefault();
           button.isKeyDown = true;
-          button.touches++;
-          if (button.touches === 1) {
-            notifyNote(button.dataset.freq);
-            button.classList.add('active');
-          }
+          addTouchToPianoButton(button);
         }
       }
     }
@@ -297,18 +319,21 @@
       const button = piano.querySelector(`[data-key="${event.key}"]`);
       if (button) {
         button.isKeyDown = false;
-        button.touches--;
-        button.classList.toggle('active', button.touches > 0);
+        removeTouchFromPianoButton(button);
       }
     }
 
-    function notifyNote(freq) {
-      playTone(freq);
+    function onPianoButton(freq, state) {
+      if (!isAudioStarted) {
+        startAudio();
+      }
+      const envelope = piano.querySelector(`[data-freq="${freq}"]`).envelope;
+      envelope.gain.setValueAtTime(state ? 0.02 : 0, audioContext.currentTime);
       if (mode === 'recording') {
         const now = performance.now();
         const delay = now - timestampOnLastRecordingEvent;
+        currentNotes.push({freq, state, delay});
         timestampOnLastRecordingEvent = now;
-        currentNotes.push({freq, delay});
         document.getElementById('play-button').disabled = false;
         document.getElementById('save-button').disabled = false;
       }
@@ -345,6 +370,9 @@
 
     function play(notes) {
       setIdle();
+      if (!isAudioStarted) {
+        startAudio();
+      }
       mode = 'playing';
       document.getElementById('play-button').classList.add('active');
       const remainingNotes = notes.slice();
@@ -356,8 +384,9 @@
             return;
           }
           playbackTimer = setTimeout(() => {
-              playTone(note.freq);
-              playRemainingNotes();
+            const envelope = piano.querySelector(`[data-freq="${note.freq}"]`).envelope;
+            envelope.gain.setValueAtTime(note.state ? 0.02 : 0, audioContext.currentTime);
+            playRemainingNotes();
           }, note.delay);
       }
       playRemainingNotes();
@@ -378,7 +407,7 @@
       const song = {
         title: document.getElementById('current-song-title').value,
         notes: currentNotes,
-        durationSeconds: currentSongTimeSeconds
+        durationSeconds: currentSongTimeSeconds,
       };
       addSavedSong(song);
       const localStorageSongs = JSON.parse(localStorage.getItem('songs') || '[]');
@@ -406,29 +435,6 @@
 
     function secondsToDisplayString(seconds) {
       return String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
-    }
-
-    const audioContext = new (window.AudioContext || window.webkitAudioContext);
-
-    function playTone(frequency) {
-      const envelope = audioContext.createGain();
-      envelope.gain.setValueAtTime(0, audioContext.currentTime);
-      envelope.gain.setValueAtTime(0.02, audioContext.currentTime);
-      envelope.gain.setTargetAtTime(0, audioContext.currentTime, 0.2);
-      envelope.connect(audioContext.destination);
-
-      const osc = audioContext.createOscillator();
-      osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      osc.type = 'square';
-      osc.connect(envelope);
-      osc.start();
-      
-      setTimeout(() => {
-        osc.stop();
-        osc.disconnect(envelope);
-        envelope.gain.cancelScheduledValues(audioContext.currentTime);
-        envelope.disconnect(audioContext.destination);
-      }, 1000);
     }
   </script>
 </html>
