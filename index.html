@@ -39,9 +39,6 @@
   <script>
     "use-strict";
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext);
-    let isAudioStarted = false;
-
     let mode = 'idle';
     let currentSongTimeSeconds = 0;
     let currentNotes = [];
@@ -51,26 +48,26 @@
 
     const piano = document.getElementById('piano');
 
-    for (const button of piano.getElementsByTagName('button')) {
-      button.touches = 0;
-
-      button.envelope = audioContext.createGain();
-      button.envelope.gain.setValueAtTime(0, audioContext.currentTime);
-      button.envelope.connect(audioContext.destination);
-
-      button.osc = audioContext.createOscillator();
-      button.osc.frequency.setValueAtTime(parseFloat(button.dataset.freq), audioContext.currentTime);
-      button.osc.type = 'square';
-      button.osc.connect(button.envelope);
-    }
-
+    const audioContext = new (window.AudioContext || window.webkitAudioContext);
+    let isAudioStarted = false;
     function startAudio() {
       for (const button of piano.getElementsByTagName('button')) {
+        button.envelope = audioContext.createGain();
+        button.envelope.gain.setValueAtTime(0, audioContext.currentTime);
+        button.envelope.connect(audioContext.destination);
+
+        button.osc = audioContext.createOscillator();
+        button.osc.frequency.setValueAtTime(parseFloat(button.dataset.freq), audioContext.currentTime);
+        button.osc.type = 'square';
+        button.osc.connect(button.envelope);
         button.osc.start();
       }
       isAudioStarted = true;
     }
 
+    for (const button of piano.getElementsByTagName('button')) {
+      button.touches = 0;
+    }
     function addTouchToPianoButton(button) {
       button.touches++;
       if (button.touches === 1) {
@@ -151,7 +148,7 @@
     }
     window.onkeyup = event => {
       const button = piano.querySelector(`[data-key="${event.key}"]`);
-      if (button) {
+      if (button && button.isKeyDown) {
         button.isKeyDown = false;
         removeTouchFromPianoButton(button);
       }
@@ -255,15 +252,23 @@
           <span class="title"></span>
           <span class="time">${secondsToDisplayString(song.durationSeconds)}</span>
           <button class="play-button">▶ Play</button>
+          <button class="delete-button"></button>
         </li>
       `);
       const li = document.getElementById('saved-song-list').lastElementChild;
       li.querySelector('.title').textContent = song.title;
       li.querySelector('.play-button').onclick = () => play(song.notes);
+      li.querySelector('.delete-button').onclick = () => {
+        const index = [...document.getElementById('saved-song-list').children].indexOf(li);
+        const localStorageSongs = JSON.parse(localStorage.getItem('songs'));
+        localStorageSongs.splice(index, 1);
+        localStorage.setItem('songs', JSON.stringify(localStorageSongs));
+        li.remove();
+      }
     }
 
-    const savedSongs = JSON.parse(localStorage.getItem('songs') || '[]');
-    for (const song of savedSongs) {
+    const localStorageSongs = JSON.parse(localStorage.getItem('songs') || '[]');
+    for (const song of localStorageSongs) {
       addSavedSong(song);
     }
 
@@ -303,15 +308,14 @@
       margin: 5px 0;
       display: flex;
       align-items: center;
-      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTggNHYxMS4xSDZjLTIuMi42LTQgMi41LTQgNC40IDAgMS44IDEuOCAyLjkgNCAyLjQgMi4xLS41IDMuOS0yLjQgNC00LjJ2LTExbDktMS40djcuOGgtMmMtMi4yLjYtNCAyLjUtNCA0LjQgMCAxLjggMS44IDIuOSA0IDIuNCAyLjEtLjUgMy45LTIuNCA0LTQuMlYyTDggNHoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=');
-      background-repeat: no-repeat;
-      background-position: left;
+      background: no-repeat left url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 4v11.1H6c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2v-11l9-1.4v7.8h-2c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2V2L8 4z" fill="white"/></svg>');
     }
     #saved-song-list li .title {
       flex-grow: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      border-bottom: 1px solid #fff;
     }
     #saved-song-list li .time {
       font-weight: bold;
@@ -322,6 +326,15 @@
       height: 30px;
       width: 70px;
       flex-shrink: 0;
+    }
+    #saved-song-list li .delete-button {
+        width:  30px;
+        height: 30px;
+        margin-left: 10px;
+        background: transparent no-repeat center/18px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16.9 16.1' height='61' width='64'><path d='M6 0a1 1 0 0 0-1 1H2.1c-.4 0-.8.4-.8.9v1c0 .4.4.8.8.8H3v10.7c0 1 .8 1.6 1.7 1.6h8c.9 0 1.6-.7 1.6-1.6V3.7h.8c.4 0 .8-.4.8-.8v-1c0-.5-.4-.8-.8-.8h-2.8V1c0-.6-.4-1-1-1z' fill='white'/><path d='M5.3 5.5v8M8.6 5.5v8M11.8 5.5v8' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/></svg>");
+    }
+    #saved-song-list li .delete-button:hover {
+        background-color: grey;
     }
     @media (max-width: 500px) {
       #saved-song-list {
@@ -338,7 +351,7 @@
       display: flex;
       background: #131827;
       color: #fff;
-      padding: 0 5px;
+      padding: 5px;
     }
     #current-song-title {
       background: transparent;
