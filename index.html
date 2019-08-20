@@ -49,22 +49,21 @@
     const piano = document.getElementById('piano');
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext);
-    let isAudioStarted = false;
-    function startAudio() {
-      for (const button of piano.getElementsByTagName('button')) {
-        button.envelope = audioContext.createGain();
-        button.envelope.gain.setValueAtTime(0, audioContext.currentTime);
-        button.envelope.connect(audioContext.destination);
+    for (const button of piano.getElementsByTagName('button')) {
+      button.envelope = audioContext.createGain();
+      button.envelope.gain.setValueAtTime(0, audioContext.currentTime);
+      button.envelope.connect(audioContext.destination);
 
-        button.osc = audioContext.createOscillator();
-        button.osc.frequency.setValueAtTime(parseFloat(button.dataset.freq), audioContext.currentTime);
-        button.osc.type = 'square';
-        button.osc.connect(button.envelope);
-        button.osc.start();
-      }
-      isAudioStarted = true;
+      button.osc = audioContext.createOscillator();
+      button.osc.frequency.setValueAtTime(parseFloat(button.dataset.freq), audioContext.currentTime);
+      button.osc.type = 'square';
+      button.osc.connect(button.envelope);
+      button.osc.start();
     }
 
+    // So that multiple touches on the same button only result in one button activation and one note
+    // played, the number of simultaneous touches for each button is counted.
+    // Mouse, keyboard and touch events are all counted as touches.
     for (const button of piano.getElementsByTagName('button')) {
       button.touches = 0;
     }
@@ -90,7 +89,7 @@
         const element = document.elementFromPoint(touch.clientX, touch.clientY);
         if (element && element.tagName === 'BUTTON' && element.closest('#piano')) {
           const previousButton = touchMap.get(touch.identifier);
-          if (previousButton !== element) {
+          if (previousButton !== element) { // Has this touch moved to a different button?
             if (previousButton) {
               removeTouchFromPianoButton(previousButton);
             }
@@ -141,7 +140,7 @@
         const button = piano.querySelector(`[data-key="${event.key}"]`);
         if (button && !button.isKeyDown) {
           event.preventDefault();
-          button.isKeyDown = true;
+          button.isKeyDown = true; // To debounce repeated keydown events, from keys held down
           addTouchToPianoButton(button);
         }
       }
@@ -155,8 +154,11 @@
     }
 
     function onPianoButton(freq, state) {
-      if (!isAudioStarted) {
-        startAudio();
+      if (audioContext.state === 'suspended') {
+        // The AudioContext will initially be in a suspended state, and is only allowed
+        // to be resumed here, in response to a user gesture.
+        // See https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Best_practices#Autoplay_policy
+        audioContext.resume();
       }
       const envelope = piano.querySelector(`[data-freq="${freq}"]`).envelope;
       envelope.gain.setValueAtTime(state ? 0.02 : 0, audioContext.currentTime);
@@ -201,24 +203,27 @@
 
     function play(notes) {
       setIdle();
-      if (!isAudioStarted) {
-        startAudio();
+      if (audioContext.state === 'suspended') {
+        // The AudioContext will initially be in a suspended state, and is only allowed
+        // to be resumed here, in response to a user gesture.
+        // See https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Best_practices#Autoplay_policy
+        audioContext.resume();
       }
       mode = 'playing';
       document.getElementById('play-button').classList.add('active');
       const remainingNotes = notes.slice();
       const playRemainingNotes = () => {
-          const note = remainingNotes.shift();
-          if (!note) {
-            mode = 'idle';
-            document.getElementById('play-button').classList.remove('active');
-            return;
-          }
-          playbackTimer = setTimeout(() => {
-            const envelope = piano.querySelector(`[data-freq="${note.freq}"]`).envelope;
-            envelope.gain.setValueAtTime(note.state ? 0.02 : 0, audioContext.currentTime);
-            playRemainingNotes();
-          }, note.delay);
+        const note = remainingNotes.shift();
+        if (!note) {
+          mode = 'idle';
+          document.getElementById('play-button').classList.remove('active');
+          return;
+        }
+        playbackTimer = setTimeout(() => {
+          const envelope = piano.querySelector(`[data-freq="${note.freq}"]`).envelope;
+          envelope.gain.setValueAtTime(note.state ? 0.02 : 0, audioContext.currentTime);
+          playRemainingNotes();
+        }, note.delay);
       }
       playRemainingNotes();
     }
@@ -328,13 +333,13 @@
       flex-shrink: 0;
     }
     #saved-song-list li .delete-button {
-        width:  30px;
-        height: 30px;
-        margin-left: 10px;
-        background: transparent no-repeat center/18px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16.9 16.1' height='61' width='64'><path d='M6 0a1 1 0 0 0-1 1H2.1c-.4 0-.8.4-.8.9v1c0 .4.4.8.8.8H3v10.7c0 1 .8 1.6 1.7 1.6h8c.9 0 1.6-.7 1.6-1.6V3.7h.8c.4 0 .8-.4.8-.8v-1c0-.5-.4-.8-.8-.8h-2.8V1c0-.6-.4-1-1-1z' fill='white'/><path d='M5.3 5.5v8M8.6 5.5v8M11.8 5.5v8' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/></svg>");
+      width:  30px;
+      height: 30px;
+      margin-left: 10px;
+      background: transparent no-repeat center/18px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16.9 16.1' height='61' width='64'><path d='M6 0a1 1 0 0 0-1 1H2.1c-.4 0-.8.4-.8.9v1c0 .4.4.8.8.8H3v10.7c0 1 .8 1.6 1.7 1.6h8c.9 0 1.6-.7 1.6-1.6V3.7h.8c.4 0 .8-.4.8-.8v-1c0-.5-.4-.8-.8-.8h-2.8V1c0-.6-.4-1-1-1z' fill='white'/><path d='M5.3 5.5v8M8.6 5.5v8M11.8 5.5v8' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/></svg>");
     }
     #saved-song-list li .delete-button:hover {
-        background-color: grey;
+      background-color: grey;
     }
     @media (max-width: 500px) {
       #saved-song-list {
@@ -433,7 +438,7 @@
       height: 50%;
       display: flex;
       justify-content: space-around;
-      pointer-events: none;
+      pointer-events: none; /* So clicks/touches in the gaps between accidentals get through to the button underneath */
     }
     #accidentals button {
       width: 5.9%;
