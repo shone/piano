@@ -42,10 +42,12 @@
     "use-strict";
 
     let mode = 'idle';
+
+    let recordedEvents = [];
     let currentSongTimeSeconds = 0;
-    let currentNotes = [];
     let recordingTickTimer = null;
     let timestampOnLastRecordingEvent = null;
+
     let playbackTimer = null;
     const buttonsTouchedForPlayback = new Set();
 
@@ -169,7 +171,7 @@
       if (mode === 'recording') {
         const now = performance.now();
         const delay = now - timestampOnLastRecordingEvent;
-        currentNotes.push({freq, state, delay});
+        recordedEvents.push({freq, state, delay});
         timestampOnLastRecordingEvent = now;
         document.getElementById('play-button').disabled = false;
         document.getElementById('save-button').disabled = false;
@@ -179,7 +181,7 @@
     function toggleRecording() {
       if (mode !== 'recording') {
         setIdle();
-        currentNotes = [];
+        recordedEvents = [];
         document.getElementById('play-button').disabled = true;
         document.getElementById('save-button').disabled = true;
         timestampOnLastRecordingEvent = performance.now();
@@ -199,13 +201,13 @@
     function togglePlayback() {
       if (mode !== 'playing') {
         setIdle();
-        play(currentNotes);
+        play(recordedEvents);
       } else {
         setIdle();
       }
     }
 
-    function play(notes) {
+    function play(events) {
       setIdle();
       if (audioContext.state === 'suspended') {
         // The AudioContext will initially be in a suspended state, and is only allowed
@@ -215,28 +217,28 @@
       }
       mode = 'playing';
       document.getElementById('play-button').classList.add('active');
-      const remainingNotes = notes.slice();
-      function playRemainingNotes() {
-        const note = remainingNotes.shift();
-        if (!note) {
+      const remainingEvents = events.slice();
+      function playRemainingEvents() {
+        const event = remainingEvents.shift();
+        if (!event) {
           mode = 'idle';
           document.getElementById('play-button').classList.remove('active');
           buttonsTouchedForPlayback.clear();
           return;
         }
         playbackTimer = setTimeout(() => {
-          const button = piano.querySelector(`[data-freq="${note.freq}"]`);
-          if (note.state) {
+          const button = piano.querySelector(`[data-freq="${event.freq}"]`);
+          if (event.state) {
             addTouchToPianoButton(button);
             buttonsTouchedForPlayback.add(button);
           } else {
             removeTouchFromPianoButton(button);
             buttonsTouchedForPlayback.delete(button);
           }
-          playRemainingNotes();
-        }, note.delay);
+          playRemainingEvents();
+        }, event.delay);
       }
-      playRemainingNotes();
+      playRemainingEvents();
     }
 
     function setIdle() {
@@ -257,7 +259,7 @@
     function save() {
       const song = {
         title: document.getElementById('current-song-title').value,
-        notes: currentNotes,
+        events: recordedEvents,
         durationSeconds: currentSongTimeSeconds,
       };
       addSavedSong(song);
@@ -277,7 +279,7 @@
       `);
       const li = document.getElementById('saved-song-list').lastElementChild;
       li.querySelector('.title').textContent = song.title;
-      li.querySelector('.play-button').onclick = () => play(song.notes);
+      li.querySelector('.play-button').onclick = () => play(song.events);
       li.querySelector('.delete-button').onclick = () => {
         const index = [...document.getElementById('saved-song-list').children].indexOf(li);
         const localStorageSongs = JSON.parse(localStorage.getItem('songs'));
