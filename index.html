@@ -11,9 +11,9 @@
     <div id="current-song">
       <input id="current-song-title" value="untitled">
       <span id="current-song-time">00:00</span>
-      <button id="record-button" onclick="toggleRecording()"        > ⏺ Record </button>
-      <button id="play-button"   onclick="togglePlayback()" disabled> ▶ Play     </button>
-      <button id="save-button"   onclick="save()"           disabled> Save ⮥    </button>
+      <button id="record-button" onclick="toggleRecording()"        > Record </button>
+      <button id="play-button"   onclick="togglePlayback()" disabled> Play   </button>
+      <button id="save-button"   onclick="save()"           disabled> Save   </button>
     </div>
     <div id="piano">
       <button data-freq="261.626" data-key="a">A</button>
@@ -259,7 +259,7 @@
         <li>
           <span class="title"></span>
           <span class="time">${secondsToDisplayString(song.durationSeconds)}</span>
-          <button class="play-button">▶ Play</button>
+          <button class="play-button">Play</button>
           <button class="delete-button"></button>
         </li>
       `);
@@ -334,6 +334,10 @@
       height: 30px;
       width: 70px;
       flex-shrink: 0;
+      background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
+      background-position: 10px center;
+      background-size: 14px;
+      padding-left: 22px;
     }
     #saved-song-list li .delete-button {
       width:  30px;
@@ -383,14 +387,15 @@
       margin-left: 5px;
     }
     button {
-      background: #eb7f00;
+      background-color: #eb7f00;
       color: #fff;
       border: none;
       cursor: pointer;
       border-radius: 3px;
+      background-repeat: no-repeat;
     }
     button:hover {
-      background: #ff9e2b;
+      background-color: #ff9e2b;
     }
     button:focus {
       outline: none;
@@ -400,11 +405,29 @@
       border: 5px solid #fff;
     }
     button[disabled] {
-      background: grey;
+      background-color: grey;
       cursor: not-allowed;
+    }
+    #record-button {
+      background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><circle cx="8.467" cy="288.5" r="8.467" fill="white"/></g></svg>');
+      background-position: 10px center;
+      background-size: 20px;
+      padding-left: 30px;
     }
     #record-button.active {
       animation: 0.4s flash-button-active infinite alternate;
+    }
+    #play-button {
+      background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
+      background-position: 10px center;
+      background-size: 20px;
+      padding-left: 22px;
+    }
+    #save-button {
+      background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.335 285.7v9.927h14.25v-9.927" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.646"/><path d="m6.584 280.2v5.781h-2.321l4.135 5.245 4.135-5.245h-2.321v-5.781z" fill="white"/></g></svg>');
+      background-position: 10px center;
+      background-size: 20px;
+      padding-left: 22px;
     }
     @keyframes flash-button-active {
       from {border-color: #fff;     }
@@ -425,12 +448,12 @@
       padding: 5px;
     }
     #piano button.active {
-      background: #3ac8da;
+      background-color: #3ac8da;
       border-top: 1px solid #3ac8da;
     }
     #piano > button {
       width: 100%;
-      background: #f6f5f3;
+      background-color: #f6f5f3;
       border: 1px solid #888;
       border-radius: 0 0 6px 6px;
       color: #888;
@@ -452,7 +475,7 @@
     }
     #accidentals button {
       width: 5.9%;
-      background: #555;
+      background-color: #555;
       color: #f8e8d5;
       border: 1px solid #fff;
       border-top: 1px solid transparent;
