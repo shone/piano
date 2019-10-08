@@ -47,6 +47,7 @@
     let recordingTickTimer = null;
     let timestampOnLastRecordingEvent = null;
     let playbackTimer = null;
+    const buttonsTouchedForPlayback = new Set();
 
     const piano = document.getElementById('piano');
 
@@ -174,7 +175,7 @@
         document.getElementById('save-button').disabled = false;
       }
     }
-    
+
     function toggleRecording() {
       if (mode !== 'recording') {
         setIdle();
@@ -215,16 +216,23 @@
       mode = 'playing';
       document.getElementById('play-button').classList.add('active');
       const remainingNotes = notes.slice();
-      const playRemainingNotes = () => {
+      function playRemainingNotes() {
         const note = remainingNotes.shift();
         if (!note) {
           mode = 'idle';
           document.getElementById('play-button').classList.remove('active');
+          buttonsTouchedForPlayback.clear();
           return;
         }
         playbackTimer = setTimeout(() => {
-          const envelope = piano.querySelector(`[data-freq="${note.freq}"]`).envelope;
-          envelope.gain.setValueAtTime(note.state ? 0.02 : 0, audioContext.currentTime);
+          const button = piano.querySelector(`[data-freq="${note.freq}"]`);
+          if (note.state) {
+            addTouchToPianoButton(button);
+            buttonsTouchedForPlayback.add(button);
+          } else {
+            removeTouchFromPianoButton(button);
+            buttonsTouchedForPlayback.delete(button);
+          }
           playRemainingNotes();
         }, note.delay);
       }
@@ -237,6 +245,10 @@
         document.getElementById('record-button').classList.remove('active');
       } else if (mode === 'playing') {
         clearTimeout(playbackTimer);
+        for (const button of buttonsTouchedForPlayback) {
+          removeTouchFromPianoButton(button);
+        }
+        buttonsTouchedForPlayback.clear();
         document.getElementById('play-button').classList.remove('active');
       }
       mode = 'idle';
