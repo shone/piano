@@ -141,6 +141,7 @@
       } else {
         const button = piano.querySelector(`[data-key="${event.key}"]`);
         if (button && !button.isKeyDown) {
+          document.body.classList.add('keyboard-enabled');
           event.preventDefault();
           button.isKeyDown = true; // To debounce repeated keydown events, from keys held down
           addTouchToPianoButton(button);
@@ -430,9 +431,16 @@
     #piano > button {
       width: 100%;
       background: #f6f5f3;
-      color: #888;
       border: 1px solid #888;
       border-radius: 0 0 6px 6px;
+      color: #888;
+      font-weight: bold;
+    }
+    #piano button {
+      font-size: 0;
+    }
+    .keyboard-enabled #piano button {
+      font-size: 2vmax;
     }
     #accidentals {
       position: absolute;
