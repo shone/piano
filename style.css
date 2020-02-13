@@ -1,0 +1,224 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0b0f19;
+  font-family: sans-serif;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#saved-song-list {
+  flex-shrink: 1;
+  flex-grow: 1;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  min-height: 20px;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  color: #fff;
+}
+#saved-song-list li {
+  width: 400px;
+  height: 30px;
+  padding: 0 5px 0 45px;
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  background: no-repeat left url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 4v11.1H6c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2v-11l9-1.4v7.8h-2c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2V2L8 4z" fill="white"/></svg>');
+}
+#saved-song-list li .title {
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-bottom: 1px solid #fff;
+}
+#saved-song-list li .time {
+  font-weight: bold;
+  font-family: monospace;
+  padding: 0 10px;
+}
+#saved-song-list li .play-button {
+  height: 30px;
+  width: 70px;
+  flex-shrink: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
+  background-position: 10px center;
+  background-size: 14px;
+  padding-left: 22px;
+}
+#saved-song-list li .delete-button {
+  width:  30px;
+  height: 30px;
+  margin-left: 10px;
+  background: transparent no-repeat center/18px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16.9 16.1' height='61' width='64'><path d='M6 0a1 1 0 0 0-1 1H2.1c-.4 0-.8.4-.8.9v1c0 .4.4.8.8.8H3v10.7c0 1 .8 1.6 1.7 1.6h8c.9 0 1.6-.7 1.6-1.6V3.7h.8c.4 0 .8-.4.8-.8v-1c0-.5-.4-.8-.8-.8h-2.8V1c0-.6-.4-1-1-1z' fill='white'/><path d='M5.3 5.5v8M8.6 5.5v8M11.8 5.5v8' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/></svg>");
+}
+#saved-song-list li .delete-button:hover {
+  background-color: grey;
+}
+@media (max-width: 500px) {
+  #saved-song-list {
+    flex-wrap: nowrap;
+  }
+  #saved-song-list li {
+    width: auto;
+  }
+}
+
+#current-song {
+  flex-shrink: 0;
+  flex-grow: 0;
+  height: 50px;
+  display: flex;
+  background: #131827;
+  color: #fff;
+  padding: 5px;
+}
+#current-song-title {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  flex-grow: 1;
+  min-width: 60px;
+}
+#current-song-time {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 16px;
+}
+#current-song button {
+  width: 100px;
+  margin-left: 5px;
+}
+
+button {
+  background-color: #eb7f00;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+  background-repeat: no-repeat;
+}
+button:hover {
+  background-color: #ff9e2b;
+}
+button:focus {
+  outline: none;
+}
+button:active,
+button.active {
+  border: 5px solid #fff;
+}
+button[disabled] {
+  background-color: grey;
+  cursor: not-allowed;
+}
+button::-moz-focus-inner {
+  border: 0;
+}
+
+#record-button {
+  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><circle cx="8.467" cy="288.5" r="8.467" fill="white"/></g></svg>');
+  background-position: 10px center;
+  background-size: 20px;
+  padding-left: 30px;
+}
+#record-button.active {
+  animation: 0.4s flash-button-active infinite alternate;
+}
+
+#play-button {
+  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
+  background-position: 10px center;
+  background-size: 20px;
+  padding-left: 22px;
+}
+
+#save-button {
+  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.335 285.7v9.927h14.25v-9.927" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.646"/><path d="m6.584 280.2v5.781h-2.321l4.135 5.245 4.135-5.245h-2.321v-5.781z" fill="white"/></g></svg>');
+  background-position: 10px center;
+  background-size: 20px;
+  padding-left: 22px;
+}
+
+@keyframes flash-button-active {
+  from {border-color: #fff;     }
+  to   {border-color: #ffffff30;}
+}
+
+@media (max-width: 640px) {
+  #current-song button {
+    font-size: 0;
+    width: 64px;
+    background-position: center;
+  }
+}
+
+#piano {
+  height: 20vw;
+  max-height: 50vh;
+  min-height: 20vh;
+  position: relative;
+  display: flex;
+}
+#piano button {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 5px;
+}
+#piano button.active {
+  background-color: #3ac8da;
+  border-top: 1px solid #3ac8da;
+}
+#piano > button {
+  width: 100%;
+  background-color: #f6f5f3;
+  border: 1px solid #888;
+  border-radius: 0 0 6px 6px;
+  color: #888;
+  font-weight: bold;
+}
+#piano button {
+  font-size: 0;
+}
+.keyboard-enabled #piano button {
+  font-size: 2vmax;
+}
+
+#accidentals {
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  display: flex;
+  justify-content: space-around;
+  pointer-events: none; /* So clicks/touches in the gaps between accidentals get through to the button underneath */
+}
+#accidentals button {
+  width: 5.9%;
+  background-color: #555;
+  color: #f8e8d5;
+  border: 1px solid #fff;
+  border-top: 1px solid transparent;
+  border-radius: 0 0 4px 4px;
+  pointer-events: auto;
+}
+#accidentals button[data-key="w"] { transform: translateX(  20%); }
+#accidentals button[data-key="e"] { transform: translateX( -40%); }
+#accidentals button[data-key="t"] { transform: translateX(   0%); }
+#accidentals button[data-key="y"] { transform: translateX( -76%); }
+#accidentals button[data-key="u"] { transform: translateX(-153%); }
+#accidentals button[data-key="o"] { transform: translateX(-110%); }
+#accidentals button[data-key="p"] { transform: translateX(-173%); }
