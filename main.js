@@ -1,5 +1,9 @@
 "use-strict";
 
+if (location.protocol === 'https:') {
+  navigator.serviceWorker.register('/service-worker.js');
+}
+
 let mode = 'idle';
 
 let recordedEvents = [];
