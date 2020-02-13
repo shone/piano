@@ -1,7 +1,7 @@
 "use-strict";
 
 if (location.protocol === 'https:') {
-  navigator.serviceWorker.register('service-worker.js');
+  navigator.serviceWorker.register('service-worker.js', {scope: './'});
 }
 
 let mode = 'idle';
