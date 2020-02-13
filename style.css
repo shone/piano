@@ -21,6 +21,7 @@ body {
   overflow: auto;
   margin: 0;
   padding: 0;
+  margin-top: env(safe-area-inset-top);
   margin-left: env(safe-area-inset-left);
   color: #fff;
 }
@@ -80,7 +81,8 @@ body {
   background: #131827;
   color: #fff;
   padding: 5px;
-  margin-left: env(safe-area-inset-left);
+  margin-left:  env(safe-area-inset-left);
+  margin-right: env(safe-area-inset-right);
 }
 #current-song-title {
   background: transparent;
