@@ -1,6 +1,6 @@
 "use-strict";
 
-if (location.protocol === 'https:') {
+if (location.protocol !== 'file:') {
   navigator.serviceWorker.register('service-worker.js', {scope: './'});
 }
 
