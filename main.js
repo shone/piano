@@ -4,8 +4,6 @@ if (location.protocol !== 'file:') {
   navigator.serviceWorker.register('service-worker.js', {scope: './'});
 }
 
-let mode = 'stopped';
-
 let recordedEvents = [];
 let currentSongTimeSeconds = 0;
 let recordingTickTimer = null;
@@ -40,14 +38,14 @@ function addTouchToPianoButton(button) {
   button.touches++;
   if (button.touches === 1) {
     onPianoButton(button.dataset.freq, true);
-    button.classList.add('active');
+    button.classList.add('pressed');
   }
 }
 function removeTouchFromPianoButton(button) {
   button.touches--;
   if (button.touches === 0) {
     onPianoButton(button.dataset.freq, false);
-    button.classList.remove('active');
+    button.classList.remove('pressed');
   }
 }
 
@@ -132,7 +130,7 @@ function onPianoButton(freq, state) {
   }
   const envelope = piano.querySelector(`[data-freq="${freq}"]`).envelope;
   envelope.gain.setValueAtTime(state ? 0.02 : 0, audioContext.currentTime);
-  if (mode === 'recording') {
+  if (document.body.dataset.mode === 'recording') {
     const now = performance.now();
     const delay = now - timestampOnLastRecordingEvent;
     recordedEvents.push({freq, state, delay});
@@ -143,7 +141,7 @@ function onPianoButton(freq, state) {
 }
 
 function toggleRecording() {
-  if (mode !== 'recording') {
+  if (document.body.dataset.mode !== 'recording') {
     stop();
     recordedEvents = [];
     document.getElementById('play-button').disabled = true;
@@ -155,15 +153,14 @@ function toggleRecording() {
       currentSongTimeSeconds++;
       document.getElementById('current-song-time').textContent = secondsToDisplayString(currentSongTimeSeconds);
     }, 1000);
-    mode = 'recording';
-    document.getElementById('record-button').classList.add('active');
+    document.body.dataset.mode = 'recording';
   } else {
     stop();
   }
 }
 
 function togglePlayback() {
-  if (mode !== 'playing') {
+  if (document.body.dataset.mode !== 'playing') {
     stop();
     play(recordedEvents);
   } else {
@@ -179,14 +176,12 @@ function play(events) {
     // See https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Best_practices#Autoplay_policy
     audioContext.resume();
   }
-  mode = 'playing';
-  document.getElementById('play-button').classList.add('active');
+  document.body.dataset.mode = 'playing';
   const remainingEvents = events.slice();
   function playRemainingEvents() {
     const event = remainingEvents.shift();
     if (!event) {
-      mode = 'stopped';
-      document.getElementById('play-button').classList.remove('active');
+      document.body.dataset.mode = 'stopped';
       buttonsTouchedForPlayback.clear();
       return;
     }
@@ -206,17 +201,15 @@ function play(events) {
 }
 
 function stop() {
-  if (mode === 'recording') {
+  if (document.body.dataset.mode === 'recording') {
     clearInterval(recordingTickTimer);
-    document.getElementById('record-button').classList.remove('active');
-  } else if (mode === 'playing') {
+  } else if (document.body.dataset.mode === 'playing') {
     clearTimeout(playbackTimer);
     while (buttonsTouchedForPlayback.length > 0) {
       removeTouchFromPianoButton(buttonsTouchedForPlayback.pop());
     }
-    document.getElementById('play-button').classList.remove('active');
   }
-  mode = 'stopped';
+  document.body.dataset.mode = 'stopped';
 }
 
 function save() {

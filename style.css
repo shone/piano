@@ -120,10 +120,6 @@ button:hover {
 button:focus {
   outline: none;
 }
-button:active,
-button.active {
-  border: 5px solid #fff;
-}
 button[disabled] {
   background-color: grey;
   cursor: not-allowed;
@@ -137,9 +133,6 @@ button::-moz-focus-inner {
   background-position: 10px center;
   background-size: 20px;
   padding-left: 30px;
-}
-#record-button.active {
-  animation: 0.4s flash-button-active infinite alternate;
 }
 
 #play-button {
@@ -156,7 +149,10 @@ button::-moz-focus-inner {
   padding-left: 22px;
 }
 
-@keyframes flash-button-active {
+body[data-mode='recording'] #record-button { border: 5px solid #fff; animation: 0.4s flash-record-button infinite alternate; }
+body[data-mode='playing']   #play-button   { border: 5px solid #fff; }
+
+@keyframes flash-record-button {
   from {border-color: #fff;     }
   to   {border-color: #ffffff30;}
 }
@@ -183,7 +179,7 @@ button::-moz-focus-inner {
   align-items: center;
   padding: 5px;
 }
-#piano button.active {
+#piano button.pressed {
   background-color: #3ac8da;
   border-top: 1px solid #3ac8da;
 }
