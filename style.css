@@ -21,9 +21,11 @@ body {
   overflow: auto;
   margin: 0;
   padding: 0;
-  margin-top: env(safe-area-inset-top);
-  margin-left: env(safe-area-inset-left);
   color: #fff;
+
+  /* Avoid notch area when fullscreen on mobile */
+  margin-top:  env(safe-area-inset-top);
+  margin-left: env(safe-area-inset-left);
 }
 #saved-song-list li {
   width: 400px;
@@ -81,6 +83,8 @@ body {
   background: #131827;
   color: #fff;
   padding: 5px;
+
+  /* Avoid notch area when fullscreen on mobile */
   margin-left:  env(safe-area-inset-left);
   margin-right: env(safe-area-inset-right);
 }
@@ -157,6 +161,7 @@ body[data-mode='playing']   #play-button   { border: 5px solid #fff; }
   to   {border-color: #ffffff30;}
 }
 
+/* Hide button text labels on narrow screens */
 @media (max-width: 640px) {
   #current-song button {
     font-size: 0;
