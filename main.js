@@ -4,7 +4,7 @@ if (location.protocol !== 'file:') {
   navigator.serviceWorker.register('service-worker.js', {scope: './'});
 }
 
-let mode = 'idle';
+let mode = 'stopped';
 
 let recordedEvents = [];
 let currentSongTimeSeconds = 0;
@@ -144,7 +144,7 @@ function onPianoButton(freq, state) {
 
 function toggleRecording() {
   if (mode !== 'recording') {
-    setIdle();
+    stop();
     recordedEvents = [];
     document.getElementById('play-button').disabled = true;
     document.getElementById('save-button').disabled = true;
@@ -158,21 +158,21 @@ function toggleRecording() {
     mode = 'recording';
     document.getElementById('record-button').classList.add('active');
   } else {
-    setIdle();
+    stop();
   }
 }
 
 function togglePlayback() {
   if (mode !== 'playing') {
-    setIdle();
+    stop();
     play(recordedEvents);
   } else {
-    setIdle();
+    stop();
   }
 }
 
 function play(events) {
-  setIdle();
+  stop();
   if (audioContext.state === 'suspended') {
     // The AudioContext will initially be in a suspended state, and is only allowed
     // to be resumed here, in response to a user gesture.
@@ -185,7 +185,7 @@ function play(events) {
   function playRemainingEvents() {
     const event = remainingEvents.shift();
     if (!event) {
-      mode = 'idle';
+      mode = 'stopped';
       document.getElementById('play-button').classList.remove('active');
       buttonsTouchedForPlayback.clear();
       return;
@@ -205,19 +205,18 @@ function play(events) {
   playRemainingEvents();
 }
 
-function setIdle() {
+function stop() {
   if (mode === 'recording') {
     clearInterval(recordingTickTimer);
     document.getElementById('record-button').classList.remove('active');
   } else if (mode === 'playing') {
     clearTimeout(playbackTimer);
-    for (const button of buttonsTouchedForPlayback) {
-      removeTouchFromPianoButton(button);
+    while (buttonsTouchedForPlayback.length > 0) {
+      removeTouchFromPianoButton(buttonsTouchedForPlayback.pop());
     }
-    buttonsTouchedForPlayback.clear();
     document.getElementById('play-button').classList.remove('active');
   }
-  mode = 'idle';
+  mode = 'stopped';
 }
 
 function save() {
