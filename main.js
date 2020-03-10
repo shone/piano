@@ -168,39 +168,39 @@ function togglePlayback() {
   }
 }
 
-function play(events) {
-  stop();
+async function play(events) {
+  if (document.body.dataset.mode !== 'stopped') {
+    stop();
+  }
+
   if (audioContext.state === 'suspended') {
     // The AudioContext will initially be in a suspended state, and is only allowed
     // to be resumed here, in response to a user gesture.
     // See https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Best_practices#Autoplay_policy
     audioContext.resume();
   }
+
   document.body.dataset.mode = 'playing';
-  const remainingEvents = events.slice();
-  function playRemainingEvents() {
-    const event = remainingEvents.shift();
-    if (!event) {
-      document.body.dataset.mode = 'stopped';
-      for (const button of buttonsTouchedForPlayback) {
-        removeTouchFromPianoButton(button);
-      }
-      buttonsTouchedForPlayback.clear();
+
+  for (const event of events) {
+
+    await new Promise(resolve => playbackTimer = setTimeout(resolve, event.delay));
+
+    if (document.body.dataset.mode !== 'playing') {
       return;
     }
-    playbackTimer = setTimeout(() => {
-      const button = piano.querySelector(`[data-freq="${event.freq}"]`);
-      if (event.state) {
-        addTouchToPianoButton(button);
-        buttonsTouchedForPlayback.add(button);
-      } else {
-        removeTouchFromPianoButton(button);
-        buttonsTouchedForPlayback.delete(button);
-      }
-      playRemainingEvents();
-    }, event.delay);
+
+    const button = piano.querySelector(`[data-freq="${event.freq}"]`);
+    if (event.state) {
+      addTouchToPianoButton(button);
+      buttonsTouchedForPlayback.add(button);
+    } else {
+      removeTouchFromPianoButton(button);
+      buttonsTouchedForPlayback.delete(button);
+    }
   }
-  playRemainingEvents();
+
+  stop();
 }
 
 function stop() {
