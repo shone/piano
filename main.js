@@ -7,7 +7,7 @@ if (location.protocol !== 'file:') {
 let recordedEvents = [];
 let currentSongTimeSeconds = 0;
 let recordingTickTimer = null;
-let timestampOnLastRecordingEvent = null;
+let timestampOnLastRecordedEvent = null;
 
 let playbackTimer = null;
 const buttonsTouchedForPlayback = new Set();
@@ -132,9 +132,9 @@ function onPianoButton(freq, state) {
   envelope.gain.setValueAtTime(state ? 0.02 : 0, audioContext.currentTime);
   if (document.body.dataset.mode === 'recording') {
     const now = performance.now();
-    const delay = now - timestampOnLastRecordingEvent;
-    recordedEvents.push({freq, state, delay});
-    timestampOnLastRecordingEvent = now;
+    const timeSinceLastEvent = now - timestampOnLastRecordedEvent;
+    recordedEvents.push({freq, state, delay: timeSinceLastEvent});
+    timestampOnLastRecordedEvent = now;
     document.getElementById('play-button').disabled = false;
     document.getElementById('save-button').disabled = false;
   }
@@ -146,7 +146,7 @@ function toggleRecording() {
     recordedEvents = [];
     document.getElementById('play-button').disabled = true;
     document.getElementById('save-button').disabled = true;
-    timestampOnLastRecordingEvent = performance.now();
+    timestampOnLastRecordedEvent = performance.now();
     currentSongTimeSeconds = 0;
     document.getElementById('current-song-time').textContent = '00:00';
     recordingTickTimer = setInterval(() => {
