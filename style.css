@@ -203,6 +203,12 @@ body[data-mode='recording'] #current-song-time {
   align-items: center;
   padding: 5px;
 }
+#piano button:hover {
+  background: #ccc;
+}
+#accidentals button:hover {
+  background: #777;
+}
 #piano button:active {
   transform: none;
 }
