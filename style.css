@@ -52,7 +52,7 @@ body {
   height: 30px;
   width: 70px;
   flex-shrink: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
   background-position: 10px center;
   background-size: 14px;
   padding-left: 22px;
@@ -101,7 +101,6 @@ body {
   justify-content: center;
   align-items: center;
   padding: 0 10px;
-  font-weight: bold;
   font-family: monospace;
   font-size: 16px;
 }
@@ -113,6 +112,7 @@ body {
 button {
   background-color: #eb7f00;
   color: #fff;
+  font-weight: bold;
   border: none;
   cursor: pointer;
   border-radius: 3px;
@@ -124,6 +124,9 @@ button:hover {
 button:focus {
   outline: none;
 }
+button:active {
+  transform: translate(3px, 3px);
+}
 button[disabled] {
   background-color: grey;
   cursor: not-allowed;
@@ -133,32 +136,48 @@ button::-moz-focus-inner {
 }
 
 #record-button {
-  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><circle cx="8.467" cy="288.5" r="8.467" fill="white"/></g></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><circle cx="0.5" cy="0.5" r="0.5" fill="white"/></svg>');
   background-position: 10px center;
   background-size: 20px;
   padding-left: 30px;
 }
 
 #play-button {
-  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><path d="M 0.1,0 v 1 L 0.9, 0.5 z" fill="white"/></svg>');
   background-position: 10px center;
   background-size: 20px;
   padding-left: 22px;
 }
 
 #save-button {
-  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" version="1.1" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.335 285.7v9.927h14.25v-9.927" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.646"/><path d="m6.584 280.2v5.781h-2.321l4.135 5.245 4.135-5.245h-2.321v-5.781z" fill="white"/></g></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.335 285.7v9.927h14.25v-9.927" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.646"/><path d="m6.584 280.2v5.781h-2.321l4.135 5.245 4.135-5.245h-2.321v-5.781z" fill="white"/></g></svg>');
   background-position: 10px center;
   background-size: 20px;
   padding-left: 22px;
 }
 
-body[data-mode='recording'] #record-button { border: 5px solid #fff; animation: 0.4s flash-record-button infinite alternate; }
-body[data-mode='playing']   #play-button   { border: 5px solid #fff; }
+#record-button::after { content: 'Record' }
+body[data-mode='recording'] #record-button::after { content: 'Stop'; }
+body[data-mode='recording'] #record-button {
+  /* Stop icon */
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="white"/></svg>');
+}
 
-@keyframes flash-record-button {
-  from {border-color: #fff;     }
-  to   {border-color: #ffffff30;}
+#play-button::after { content: 'Play' }
+body[data-mode='playing'] #play-button::after { content: 'Stop'; }
+body[data-mode='playing'] #play-button {
+  /* Stop icon */
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="white"/></svg>');
+}
+
+body[data-mode='recording'] #current-song-time {
+  font-weight: bold;
+  animation: 0.5s flash-current-song-time infinite linear alternate;
+}
+
+@keyframes flash-current-song-time {
+  from { color: white; }
+  to   { color: red; }
 }
 
 /* Hide button text labels on narrow screens */
@@ -183,6 +202,9 @@ body[data-mode='playing']   #play-button   { border: 5px solid #fff; }
   justify-content: flex-end;
   align-items: center;
   padding: 5px;
+}
+#piano button:active {
+  transform: none;
 }
 #piano button.pressed {
   background-color: #3ac8da;
