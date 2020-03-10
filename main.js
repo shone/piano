@@ -205,9 +205,10 @@ function stop() {
     clearInterval(recordingTickTimer);
   } else if (document.body.dataset.mode === 'playing') {
     clearTimeout(playbackTimer);
-    while (buttonsTouchedForPlayback.length > 0) {
-      removeTouchFromPianoButton(buttonsTouchedForPlayback.pop());
+    for (const button of buttonsTouchedForPlayback) {
+      removeTouchFromPianoButton(button);
     }
+    buttonsTouchedForPlayback.clear();
   }
   document.body.dataset.mode = 'stopped';
 }
