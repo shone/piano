@@ -182,6 +182,9 @@ function play(events) {
     const event = remainingEvents.shift();
     if (!event) {
       document.body.dataset.mode = 'stopped';
+      for (const button of buttonsTouchedForPlayback) {
+        removeTouchFromPianoButton(button);
+      }
       buttonsTouchedForPlayback.clear();
       return;
     }
