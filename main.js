@@ -130,7 +130,9 @@ for (const song of localStorageSongs) {
 }
 
 function secondsToDisplayString(seconds) {
-  return String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+  const minutesPart = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const secondsPart = String(seconds % 60).padStart(2, '0');
+  return `${minutesPart}:${secondsPart}`;
 }
 
 // Setup audio
