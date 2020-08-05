@@ -136,7 +136,8 @@ function secondsToDisplayString(seconds) {
 }
 
 // Setup audio
-const audioContext = new (window.AudioContext || window.webkitAudioContext);
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioContext = new AudioContext({latencyHint: 'interactive'});
 for (const button of piano.getElementsByTagName('button')) {
   button.osc = audioContext.createOscillator();
   button.osc.frequency.setValueAtTime(parseFloat(button.dataset.freq), audioContext.currentTime);
