@@ -8,6 +8,7 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
+  touch-action: none;
 }
 
 #saved-song-list {
@@ -34,7 +35,11 @@ body {
   margin: 5px 0;
   display: flex;
   align-items: center;
-  background: no-repeat left url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 4v11.1H6c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2v-11l9-1.4v7.8h-2c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2V2L8 4z" fill="white"/></svg>');
+  background: no-repeat left url('data:image/svg+xml,\
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
+      <path fill="white" d="M8 4v11.1H6c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2v-11l9-1.4v7.8h-2c-2.2.6-4 2.5-4 4.4 0 1.8 1.8 2.9 4 2.4 2.1-.5 3.9-2.4 4-4.2V2L8 4z"/>\
+    </svg>\
+  ');
 }
 #saved-song-list li .title {
   flex-grow: 1;
@@ -52,7 +57,11 @@ body {
   height: 30px;
   width: 70px;
   flex-shrink: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.276 280.1v17.01l14.74-8.511z" fill="white"/></g></svg>');
+  background-image: url('data:image/svg+xml,\
+    <svg viewBox="0 0 17 17" xmlns="http://www.w3.org/2000/svg">\
+      <path fill="white" d="m1.276 0v17.01l14.74-8.511z"/>\
+    </svg>\
+  ');
   background-position: 10px center;
   background-size: 14px;
   padding-left: 22px;
@@ -61,7 +70,14 @@ body {
   width:  30px;
   height: 30px;
   margin-left: 10px;
-  background: transparent no-repeat center/18px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16.9 16.1' height='61' width='64'><path d='M6 0a1 1 0 0 0-1 1H2.1c-.4 0-.8.4-.8.9v1c0 .4.4.8.8.8H3v10.7c0 1 .8 1.6 1.7 1.6h8c.9 0 1.6-.7 1.6-1.6V3.7h.8c.4 0 .8-.4.8-.8v-1c0-.5-.4-.8-.8-.8h-2.8V1c0-.6-.4-1-1-1z' fill='white'/><path d='M5.3 5.5v8M8.6 5.5v8M11.8 5.5v8' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/></svg>");
+  background: transparent no-repeat center/18px url('data:image/svg+xml,\
+    <svg viewBox="0 0 16.9 16.1" xmlns="http://www.w3.org/2000/svg">\
+      <path fill="white"\
+        d="M6 0a1 1 0 0 0-1 1H2.1c-.4 0-.8.4-.8.9v1c0 .4.4.8.8.8H3v10.7c0 1 .8 1.6 1.7 1.6h8c.9 0 1.6-.7 1.6-1.6V3.7h.8c.4 0 .8-.4.8-.8v-1c0-.5-.4-.8-.8-.8h-2.8V1c0-.6-.4-1-1-1z"/>\
+      <path stroke="black" stroke-width="1.8" stroke-linecap="round" fill="none"\
+        d="M5.3 5.5v8M8.6 5.5v8M11.8 5.5v8"/>\
+    </svg>\
+  ');
 }
 #saved-song-list li .delete-button:hover {
   background-color: grey;
@@ -117,6 +133,7 @@ button {
   cursor: pointer;
   border-radius: 3px;
   background-repeat: no-repeat;
+  -webkit-tap-highlight-color: transparent;
 }
 button:hover {
   background-color: #ff9e2b;
@@ -136,21 +153,36 @@ button::-moz-focus-inner {
 }
 
 #record-button {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><circle cx="0.5" cy="0.5" r="0.5" fill="white"/></svg>');
+  background-image: url('data:image/svg+xml,\
+    <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">\
+      <circle cx="0.5" cy="0.5" r="0.5" fill="white"/>\
+    </svg>\
+  ');
   background-position: 10px center;
   background-size: 20px;
   padding-left: 30px;
 }
 
 #play-button {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><path d="M 0.1,0 v 1 L 0.9, 0.5 z" fill="white"/></svg>');
+  background-image: url('data:image/svg+xml,\
+    <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">\
+      <path d="M 0.1,0 v 1 L 0.9, 0.5 z" fill="white"/>\
+    </svg>\
+  ');
   background-position: 10px center;
   background-size: 20px;
   padding-left: 22px;
 }
 
 #save-button {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 16.93 16.93" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 -280.1)"><path d="m1.335 285.7v9.927h14.25v-9.927" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.646"/><path d="m6.584 280.2v5.781h-2.321l4.135 5.245 4.135-5.245h-2.321v-5.781z" fill="white"/></g></svg>');
+  background-image: url('data:image/svg+xml,\
+    <svg viewBox="0 0 17 17" xmlns="http://www.w3.org/2000/svg">\
+      <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.646" fill="none"\
+        d="m1.335 5.6v9.927h14.25v-9.927"/>\
+      <path fill="white"\
+        d="m6.584 .1v5.781h-2.321l4.135 5.245 4.135-5.245h-2.321v-5.781z"/>\
+    </svg>\
+  ');
   background-position: 10px center;
   background-size: 20px;
   padding-left: 22px;
@@ -160,14 +192,22 @@ button::-moz-focus-inner {
 body[data-mode='recording'] #record-button::after { content: 'Stop'; }
 body[data-mode='recording'] #record-button {
   /* Stop icon */
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="white"/></svg>');
+  background-image: url('data:image/svg+xml,\
+    <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">\
+      <rect width="1" height="1" fill="white"/>\
+    </svg>\
+  ');
 }
 
 #play-button::after { content: 'Play' }
 body[data-mode='playing'] #play-button::after { content: 'Stop'; }
 body[data-mode='playing'] #play-button {
   /* Stop icon */
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="white"/></svg>');
+  background-image: url('data:image/svg+xml,\
+    <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">\
+      <rect width="1" height="1" fill="white"/>\
+    </svg>\
+  ');
 }
 
 body[data-mode='recording'] #current-song-time {
