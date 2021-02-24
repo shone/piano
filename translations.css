@@ -1,0 +1,10 @@
+[i18n]::before { content: 'NO TRANSLATION!'; }
+
+html:lang(en) [i18n="play"]::before {content: 'Play'}
+html:lang(es) [i18n="play"]::before {content: 'Jugar'}
+
+html:lang(en) [i18n="record"]::before {content: 'Record'}
+html:lang(es) [i18n="record"]::before {content: 'Grabar'}
+
+html:lang(en) [i18n="save"]::before {content: 'Save'}
+html:lang(es) [i18n="save"]::before {content: 'Salvar'}

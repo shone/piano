@@ -10,6 +10,7 @@
     <meta name="theme-color" content="#0b0f19">
 
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="translations.css">
     <link rel="shortcut icon" href="favicon.png">
 
     <link rel="manifest" href="manifest.webmanifest">
@@ -22,9 +23,9 @@
     <div id="current-song">
       <input id="current-song-title" value="untitled">
       <span id="current-song-time">00:00</span>
-      <button id="record-button" onclick="toggleRecording()"        > Record </button>
-      <button id="play-button"   onclick="togglePlayback()" disabled> Play   </button>
-      <button id="save-button"   onclick="save()"           disabled> Save   </button>
+      <button id="record-button" onclick="toggleRecording()" i18n="record">        </button>
+      <button id="play-button"   onclick="togglePlayback()"  i18n="play" disabled> </button>
+      <button id="save-button"   onclick="save()"            i18n="save" disabled></button>
     </div>
 
     <div id="piano">
