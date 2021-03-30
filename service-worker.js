@@ -3,14 +3,14 @@ self.addEventListener('install', event => {
     // Cache everything the app should need to run offline
     const cache = await caches.open('static-assets-v1');
     await cache.addAll([
-      '/',
-      '/index.html',
-      '/manifest.webmanifest',
-      '/main.js',
-      '/style.css',
-      '/favicon.png',
-      '/favicon_192x192.png',
-      '/favicon_512x512.png',
+      './',
+      './index.html',
+      './manifest.webmanifest',
+      './main.js',
+      './style.css',
+      './favicon.png',
+      './favicon_192x192.png',
+      './favicon_512x512.png',
     ]);
   }());
 });
