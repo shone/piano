@@ -56,6 +56,7 @@ async function play(events) {
   }
 
   document.body.dataset.mode = 'playing';
+  document.getElementById('play-button').disabled = false;
 
   for (const event of events) {
 
